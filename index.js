@@ -7,7 +7,8 @@ class Jukebox extends Game {
             aspectRatio: {x: 1, y: 1},
             squishVersion: '0756',
             author: 'Joseph Garcia',
-            thumbnail: '29ac02d447cb1927369bfc7af0627ebe'
+            thumbnail: '29ac02d447cb1927369bfc7af0627ebe',
+            description: `The jukebox looks like a dude. Don't upload files larger than 5MB.`
         };
     }
 
