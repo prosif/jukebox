@@ -11,9 +11,24 @@ class Jukebox extends Game {
         };
     }
 
-    constructor() {
+    constructor({ addAsset }) {
         super();
+
+        this.addAsset = addAsset;
+
         const baseColor = [255, 255, 0, 255];
+
+        this.assets = {
+            'jukebox': new Asset({
+                'id': '1d0d5a16ebfa6fe82f864b5ff418599d',
+                'type': 'image'
+            }),
+            'default-audio': new Asset({
+                'id': '9a5fd71e441439f73c4781a13281f726',
+                'type': 'audio'
+            })
+        }
+
         this.base = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(0, 0, 100, 100),
@@ -35,13 +50,40 @@ class Jukebox extends Game {
             }
         });
 
+        this.customSong = null;
+
         this.inputListener = new GameNode.Shape({
             shapeType: Shapes.POLYGON,
             coordinates2d: ShapeUtils.rectangle(25, 25, 50, 50),
             input: {
                 type: 'file',
                 oninput: (playerId, data) => {
-                    console.log('got data from player');
+                    this.customSong = data;
+                    const assetKey = 'custom' + Date.now();
+                    this.assets[assetKey] = new Asset({
+                        id: assetKey,
+                        type: 'audio'
+                    }, data);
+                    this.addAsset(assetKey, this.assets[assetKey]).then(() => {
+                        this.base.removeChild(this.assetNode.id);
+                        this.assetNode = new GameNode.Asset({
+                            assetInfo: {
+                                [assetKey]: {
+                                    pos: {
+                                        x: 0,
+                                        y: 0
+                                    },
+                                    size: {
+                                        x: 0,
+                                        y: 0
+                                    },
+                                    startTime: 0
+                                }
+                            }
+                        });
+
+                        this.base.addChild(this.assetNode);
+                    });
                 }
             }
         });
@@ -55,7 +97,7 @@ class Jukebox extends Game {
             coordinates2d: ShapeUtils.rectangle(35, 80, 30, 15),
             fill: Colors.COLORS.GREEN,
             onClick: (playerId) => {
-                const assetNode = new GameNode.Asset({
+                this.assetNode = new GameNode.Asset({
                     coordinates2d: ShapeUtils.rectangle(0, 0, 0, 0),
                     assetInfo: {
                         'default-audio': {
@@ -65,7 +107,7 @@ class Jukebox extends Game {
                         }
                     }
                 });
-                this.base.addChild(assetNode);
+                this.base.addChild(this.assetNode);
             }
         });
 
@@ -83,16 +125,7 @@ class Jukebox extends Game {
     }
 
     getAssets() {
-        return {
-            'jukebox': new Asset({
-                'id': '1d0d5a16ebfa6fe82f864b5ff418599d',
-                'type': 'image'
-            }),
-            'default-audio': new Asset({
-                'id': '9a5fd71e441439f73c4781a13281f726',
-                'type': 'audio'
-            })
-        }
+        return this.assets;
     }
 }
 
